@@ -192,6 +192,8 @@ if (process.env.NODE_ENV != "production") {
   console.log(`🦊 FRONTEND_URL → ${process.env.FRONTEND_URL}`); // pembeda .env.development & .env.production
   console.log(`🦊 DATABASE_URL: ${process.env.DATABASE_URL}`); // pembeda development & production
   console.log(`🦊 GOOGLE_REDIRECT_URI: ${process.env.GOOGLE_REDIRECT_URI}`); // dari file .env
+  console.log("CLIENT ID:", process.env.GOOGLE_CLIENT_ID);
+  console.log("REDIRECT URI:", process.env.GOOGLE_REDIRECT_URI);
 }
 
 
