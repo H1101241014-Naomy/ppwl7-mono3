@@ -11,9 +11,8 @@ export function createOAuthClient() {
   );
 }
 
-export default function handler(req, res) {
-  // PANGGIL fungsi supaya console.log jalan
+// Tambahkan tipe any supaya TS tidak error
+export default function handler(req: any, res: any) {
   const client = createOAuthClient();
-
   res.status(200).send("Cek logs Vercel Messages, CLIENT ID & REDIRECT muncul di console");
 }
