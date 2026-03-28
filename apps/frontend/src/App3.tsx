@@ -210,11 +210,12 @@ export default function App() {
   // Load daftar courses setelah login
   useEffect(() => {
     if (!loggedIn) return
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/me`, {
-  credentials: "include",
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/classroom/courses`, {
+    credentials: "include",
 })
       .then((r) => r.json())
       .then((d) => setCourses(d.data ?? []))
+      .catch(() => setCourses([]))
   }, [loggedIn])
 
   // Load submissions ketika course dipilih
