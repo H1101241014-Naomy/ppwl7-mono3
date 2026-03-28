@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
@@ -9,9 +11,43 @@ import type { ApiResponse, HealthCheck, User } from "shared";
 
 // Simple in-memory token store (ganti dengan database/session untuk production)
 const tokenStore = new Map<string, { access_token: string; refresh_token?: string }>();
+const isBrowserRequest = (request: Request): boolean => {
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const accept = request.headers.get("accept") ?? "";
 
+  const acceptsHtml = accept.includes("text/html");
+
+  return acceptsHtml && !origin && !referer;
+};
 const app = new Elysia()
-  .use(cors({ origin: ["http://localhost:5173", "http://localhost:5174"], credentials: true }))
+  // !!! modifikasi CORS agar dapat di akses oleh web frontend deployment https
+  .use(
+    cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true, // WAJIB untuk /auth/me yang mengecek session/cookie
+      allowedHeaders: ["Content-Type", "Authorization"]
+    })
+  )
+.onRequest(({ request, set }) => {
+  const url = new URL(request.url);
+
+  if (url.pathname.startsWith("/users")) {
+    const origin = request.headers.get("origin");
+    const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
+    const key = url.searchParams.get("key");
+
+    if (origin === frontendUrl) return;
+
+    if (isBrowserRequest(request)) {
+      const key = url.searchParams.get("key");
+
+      if (key !== process.env.API_KEY) {
+        set.status = 401;
+        return { message: "Unauthorized: Access denied without valid API Key" };
+      }
+    }
+  }})
   .use(swagger())
   .use(cookie())
 
@@ -63,9 +99,15 @@ const app = new Elysia()
     // Set cookie session
     session.value = sessionId;
     session.maxAge = 60 * 60 * 24; // 1 hari
+    session.path = "/";
+
+    // !!! Tambahkan KONFIGURASI PRODUCTION
+    session.httpOnly = true;
+    session.secure = true;    // WAJIB: Cookie hanya dikirim lewat HTTPS
+    session.sameSite = "none"; // WAJIB: Agar cookie bisa dikirim antar domain berbeda
 
     // Redirect ke frontend
-    return redirect("http://localhost:5173/classroom");
+    return redirect(`${process.env.FRONTEND_URL}/classroom`);
   })
 
   // Cek status login
@@ -133,9 +175,26 @@ const app = new Elysia()
     return { data: result, message: "Course submissions retrieved" };
   })
 
-  .listen(3000);
+.get("/debug-prisma", () => {
+  const generatedPath = path.resolve(__dirname, "../src/generated/prisma"); // <-- ubah dari client
+  const exists = fs.existsSync(generatedPath);
 
-console.log(`🦊 Backend → http://localhost:${app.server?.port}`);
-console.log(`📖 Swagger → http://localhost:${app.server?.port}/swagger`);
+  return {
+    path: generatedPath,
+    exists: exists,
+    files: exists ? fs.readdirSync(generatedPath) : []
+  };
+});
 
+if (process.env.NODE_ENV != "production") {
+  app.listen(3000);
+  console.log(`🦊 Backend → http://localhost:3000`);
+  console.log(`🦊 FRONTEND_URL → ${process.env.FRONTEND_URL}`); // pembeda .env.development & .env.production
+  console.log(`🦊 DATABASE_URL: ${process.env.DATABASE_URL}`); // pembeda development & production
+  console.log(`🦊 GOOGLE_REDIRECT_URI: ${process.env.GOOGLE_REDIRECT_URI}`); // dari file .env
+}
+
+
+// !!! tambahkan export app agar Elysia dapat dibaca Vercel serverless.
+export default app;
 export type App = typeof app;
