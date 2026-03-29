@@ -194,6 +194,7 @@ if (process.env.NODE_ENV != "production") {
   console.log(`🦊 GOOGLE_REDIRECT_URI: ${process.env.GOOGLE_REDIRECT_URI}`); // dari file .env
   console.log("CLIENT ID:", process.env.GOOGLE_CLIENT_ID);
   console.log("REDIRECT URI:", process.env.GOOGLE_REDIRECT_URI);
+  console.log("trigger deploy backend");
 }
 
 
