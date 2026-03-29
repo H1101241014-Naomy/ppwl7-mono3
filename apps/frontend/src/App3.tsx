@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-// ─────────────────────────────────────────────
+// ────────────────────────────────────────────
 // Helpers
-// ─────────────────────────────────────────────
+// ────────────────────────────────────────────
 
 function formatDueDate(dueDate?: { year: number; month: number; day: number }) {
   if (!dueDate) return "Tidak ada deadline"
@@ -239,11 +239,11 @@ export default function App() {
   }
 
   const handleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/login"
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/login`
   }
 
   const handleLogout = async () => {
-  await fetch("http://localhost:3000/auth/logout", {
+  await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
     method: "POST",
     credentials: "include"
   })
