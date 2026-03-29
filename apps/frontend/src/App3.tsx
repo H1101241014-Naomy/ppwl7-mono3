@@ -191,6 +191,7 @@ function CourseWorkCard({ item }: { item: CourseWorkWithSubmission }) {
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null)
+  console.log("🔥 trigger redeploy frontend")
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null)
   const [items, setItems] = useState<CourseWorkWithSubmission[]>([])
@@ -243,7 +244,7 @@ export default function App() {
   }
 
   const handleLogout = async () => {
-  await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
+  await fetch("http://localhost:3000/auth/logout", {
     method: "POST",
     credentials: "include"
   })
