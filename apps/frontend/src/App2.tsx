@@ -15,12 +15,13 @@ import { Button } from "@/components/ui/button"
 export default function App() {
   const [users, setUsers] = useState<User[]>([])
 
-  const loadUsers = async () => {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
-    const data: ApiResponse<User[]> = await res.json()
+  // Ganti baris yang lama dengan ini:
+const loadUsers = async () => {
+  const res = await fetch("/api/users") 
+  const data: ApiResponse<User[]> = await res.json()
 
-    setUsers(data.data)
-  }
+  setUsers(data.data)
+}
 
   useEffect(() => {
     loadUsers()

@@ -23,12 +23,12 @@ const isBrowserRequest = (request: Request): boolean => {
 const app = new Elysia()
   // !!! modifikasi CORS agar dapat di akses oleh web frontend deployment https
   .use(
-    cors({
-      origin: process.env.FRONTEND_URL || "http://localhost:5173",
-      credentials: true, // WAJIB untuk /auth/me yang mengecek session/cookie
-      allowedHeaders: ["Content-Type", "Authorization"]
-    })
-  )
+  cors({
+    origin: "http://localhost:5173", // Paksa ke localhost
+    credentials: true,               // WAJIB TRUE
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+)
 .onRequest(({ request, set }) => {
   const url = new URL(request.url);
 
@@ -106,8 +106,7 @@ const app = new Elysia()
     session.secure = true;    // WAJIB: Cookie hanya dikirim lewat HTTPS
     session.sameSite = "none"; // WAJIB: Agar cookie bisa dikirim antar domain berbeda
 
-    // Redirect ke frontend
-    return redirect(`${process.env.FRONTEND_URL}/classroom`);
+    return redirect(`http://localhost:5173/classroom`);
   })
 
   // Cek status login

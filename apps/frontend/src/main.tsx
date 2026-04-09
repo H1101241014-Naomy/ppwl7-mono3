@@ -7,7 +7,8 @@ import './index.css'
 const path = window.location.pathname
 
 let App
-if (path === '/classroom') {
+// Pakai .includes agar kalau ada URL aneh dikit tetap masuk Classroom
+if (path.includes('/classroom')) {
   const { default: ClassroomApp } = await import('./App3')
   App = ClassroomApp
 } else {
